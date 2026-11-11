@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Servitor
+GenericName=GPU Monitor
+Comment=Monitor NVIDIA GPUs on remote servers over SSH
+Exec=Servitor
+Icon=servitor
+Categories=System;Monitor;
+Keywords=GPU;NVIDIA;CUDA;SSH;monitor;
+Terminal=false

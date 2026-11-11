@@ -1,0 +1,96 @@
+# Builds the Linux AppImage and the Windows installer, and publishes them.
+#
+# Pushing a tag such as v1.4.4 builds both and attaches them to a GitHub
+# Release of that tag, with SHA256SUMS.txt. The AppImage installs itself
+# (Servitor --install), so nothing else ships beside it. Run by hand from the
+# Actions tab, it builds both and keeps them as downloadable artifacts only,
+# without a Release.
+#
+# The tag has to match the VERSION file, which every build stamps into the
+# files it makes; a mismatch stops the run before anything is built.
+
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write          # creating the Release and uploading to it
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tag matches VERSION
+        if: github.ref_type == 'tag'
+        run: |
+          version="$(tr -d '[:space:]' < VERSION)"
+          if [ "${GITHUB_REF_NAME}" != "v${version}" ]; then
+            echo "Tag ${GITHUB_REF_NAME} does not match VERSION (${version})." >&2
+            exit 1
+          fi
+
+  linux:
+    needs: version
+    # The oldest supported Ubuntu: an AppImage runs only on systems at least as
+    # new as the one it was built on, so building here reaches the most machines.
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # build.sh dates the release from VERSION's history
+      - name: System Python with Tk
+        # Ubuntu's Tk is the xft build, which the bundled interface font needs.
+        run: sudo apt-get update && sudo apt-get install -y python3-venv python3-tk
+      - name: Build
+        run: build/build.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux
+          path: dist/Servitor-*-x86_64.AppImage
+          if-no-files-found: error
+
+  windows:
+    needs: version
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Inno Setup
+        # Servitor.iss needs 6.6 or newer; the runner's own copy may be older.
+        run: choco upgrade innosetup -y --no-progress
+      - name: Build
+        shell: cmd
+        env:
+          PYTHON: ${{ env.pythonLocation }}\python.exe
+        run: build\build.bat
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: dist/Servitor-Setup-*.exe
+          if-no-files-found: error
+
+  release:
+    needs: [linux, windows]
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+      - name: Collect files and checksums
+        run: |
+          mkdir release
+          find artifacts -type f \( -name '*.AppImage' -o -name '*.exe' \) -exec cp {} release/ \;
+          chmod +x release/*.AppImage
+          cd release && sha256sum * > SHA256SUMS.txt && cat SHA256SUMS.txt
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: release/*
+          generate_release_notes: true

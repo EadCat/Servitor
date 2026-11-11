@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- AppStream metadata. appimagetool asks for this, and desktop software
+     centres use it to describe the application. -->
+<component type="desktop-application">
+  <id>io.github.eadcat.Servitor</id>
+  <metadata_license>MIT</metadata_license>
+  <project_license>MIT</project_license>
+  <name>Servitor</name>
+  <summary>Monitor NVIDIA GPUs on remote servers over SSH</summary>
+  <description>
+    <p>
+      Servitor watches NVIDIA GPUs across remote servers over SSH, and on the
+      machine it runs on, from a single window. Each server shows how many of
+      its GPUs are occupied, their temperature and memory, and which processes
+      are holding them.
+    </p>
+    <p>
+      Nothing is installed on the monitored machines: it needs only SSH access
+      and the nvidia-smi binary that ships with the driver.
+    </p>
+  </description>
+  <launchable type="desktop-id">io.github.eadcat.Servitor.desktop</launchable>
+  <url type="homepage">https://github.com/EadCat/Servitor</url>
+  <provides>
+    <binary>Servitor</binary>
+  </provides>
+  <releases>
+    <release version="@VERSION@" date="@DATE@"/>
+  </releases>
+  <content_rating type="oars-1.1"/>
+</component>

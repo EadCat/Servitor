@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Temporary and generated files
+*.log
+WinError.txt
+*.tmp
+*.bak
+*~
+tmp/
+scratch/
+
+# Build output. build/ itself is tracked (spec, scripts), but PyInstaller
+# defaults its work directory to build/Servitor when --workpath is omitted.
+dist/
+.pyinstaller/
+*.AppImage
+/build/Servitor/
+
+# The icon renderer, kept on the author's machine only; the icons it made in
+# assets/ are the committed source and are packaged as they are.
+build/make_icon.py
+
+# Local runtime config (holds SSH credentials — never commit)
+config.json
+
+# Editors and IDEs
+.idea/
+.vscode/
+*.swp
+
+# Tooling
+.claude/
+
+# OS
+.DS_Store
+Thumbs.db

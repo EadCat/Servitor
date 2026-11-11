@@ -1,0 +1,4 @@
+customtkinter>=5.2
+paramiko>=3.4
+pystray>=0.19
+Pillow
