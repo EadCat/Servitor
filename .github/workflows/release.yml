@@ -44,9 +44,11 @@ jobs:
           fetch-depth: 0   # build.sh dates the release from VERSION's history
       - name: System Python with Tk
         # Ubuntu's Tk is the xft build, which the bundled interface font needs.
-        run: sudo apt-get update && sudo apt-get install -y python3-venv python3-tk
+        run: sudo apt-get update && sudo apt-get install -y python3-venv python3-tk xvfb
       - name: Build
-        run: build/build.sh
+        # pystray opens the X display as it is imported, which the build's
+        # checks do, and a runner has no display of its own.
+        run: xvfb-run -a build/build.sh
       - uses: actions/upload-artifact@v4
         with:
           name: linux
